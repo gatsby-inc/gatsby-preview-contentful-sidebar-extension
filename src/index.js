@@ -2,8 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {
   Button,
-  FieldGroup,
-  RadioButtonField,
   Paragraph
 } from "@contentful/forma-36-react-components";
 import { init } from "contentful-ui-extensions-sdk";
@@ -16,7 +14,7 @@ class App extends React.Component {
 
     const { parameters } = this.props.sdk;
     const { webhookUrl, previewUrl } = parameters.installation;
-    const { contentTypeSlug, isAutoUpdate } = parameters.instance;
+    const { contentTypeSlug } = parameters.instance;
 
     let slug = contentTypeSlug ? contentTypeSlug : "";
 
@@ -25,7 +23,6 @@ class App extends React.Component {
     }
 
     this.state = {
-      isAutoUpdate,
       previewUrl: previewUrl + slug,
       webhookUrl
     };
@@ -50,9 +47,6 @@ class App extends React.Component {
   };
 
   onSysChanged = () => {
-    if (!this.state.isAutoUpdate) {
-      return;
-    }
     if (this.debounceInterval) {
       clearInterval(this.debounceInterval);
     }
@@ -66,7 +60,10 @@ class App extends React.Component {
 
     fetch(this.state.webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-preview-update-source": "contentful-sidebar-extension"
+      },
       body: JSON.stringify({})
     }).then(
       () => this.props.sdk.notifier.success("Gatsby Preview updated!"),
@@ -76,9 +73,6 @@ class App extends React.Component {
 
   openPreviewTab = () => {
     window.open(this.state.previewUrl);
-  };
-  onAutoUpdateChange = e => {
-    this.setState({ isAutoUpdate: e.target.value === "yes" });
   };
 
   render = () => {
@@ -92,46 +86,12 @@ class App extends React.Component {
           >
             Open preview
           </Button>
-
-          <FieldGroup row={true}>
-            <RadioButtonField
-              labelText="Auto-update"
-              disabled={false}
-              checked={this.state.isAutoUpdate}
-              value="yes"
-              onChange={this.onAutoUpdateChange}
-              labelIsLight
-              name="autoUpdate"
-              id="checkbox1"
-            />
-            <RadioButtonField
-              labelText="Manual update"
-              disabled={false}
-              checked={!this.state.isAutoUpdate}
-              name="someOption"
-              value="no"
-              onChange={this.onAutoUpdateChange}
-              labelIsLight
-              name="autoUpdate"
-              id="checkbox2"
-            />
-          </FieldGroup>
-
-          <Button
-            isFullWidth
-            size="small"
-            buttonType="muted"
-            onClick={this.refreshGatsbyPreview}
-          >
-            Update Preview
-          </Button>
-
           <div
             style={{
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
-              justifyContent: "flex-end"
+              justifyContent: "center"
             }}
           >
             <Paragraph style={{ marginRight: "5%" }}>Powered by:</Paragraph>
