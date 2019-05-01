@@ -1,6 +1,6 @@
 {
   "id": "gatsby-preview-sidebar",
-  "name": "Gatsby Preview: Instant content updates",
+  "name": "Gatsby Preview",
   "srcdoc": "./build/index.html",
   "sidebar": true,
   "parameters": {
