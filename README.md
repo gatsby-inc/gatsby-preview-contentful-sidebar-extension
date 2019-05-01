@@ -32,12 +32,6 @@ In order to use this extension, you need:
 - a [Gatbsy Preview](https://www.gatsbyjs.com/preview/) setup to use this extension
 - a space and the Contentful CLI installed
 
-## Installation
-
-### Manual Installation
-
-### Contentful Marketplace
-
 ## Usage
 
 After cloning, install the dependencies
