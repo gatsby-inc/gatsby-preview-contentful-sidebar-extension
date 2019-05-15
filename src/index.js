@@ -1,31 +1,13 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import {
-  Button,
-  Paragraph
-} from "@contentful/forma-36-react-components";
-import { init } from "contentful-ui-extensions-sdk";
-import "@contentful/forma-36-react-components/dist/styles.css";
-import "./index.css";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Button, Paragraph } from '@contentful/forma-36-react-components';
+import { init } from 'contentful-ui-extensions-sdk';
+import '@contentful/forma-36-react-components/dist/styles.css';
+import './index.css';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-
-    const { parameters } = this.props.sdk;
-    const { webhookUrl, previewUrl } = parameters.installation;
-    const { contentTypeSlug } = parameters.instance;
-
-    let slug = contentTypeSlug ? contentTypeSlug : "";
-
-    if (this.props.sdk.entry.fields.slug) {
-      slug += "/" + this.props.sdk.entry.fields.slug.getValue();
-    }
-
-    this.state = {
-      previewUrl: previewUrl + slug,
-      webhookUrl
-    };
   }
 
   componentDidMount = () => {
@@ -58,49 +40,68 @@ class App extends React.Component {
       clearInterval(this.debounceInterval);
     }
 
-    fetch(this.state.webhookUrl, {
-      method: "POST",
+    const { webhookUrl } = this.props.sdk.parameters.installation
+
+    fetch(webhookUrl, {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-preview-update-source": "contentful-sidebar-extension"
+        'Content-Type': 'application/json',
+        'x-preview-update-source': 'contentful-sidebar-extension'
       },
       body: JSON.stringify({})
     }).then(
-      () => this.props.sdk.notifier.success("Gatsby Preview updated!"),
-      () => this.props.sdk.notifier.error("Gatsby Preview failed :(")
+      () => this.props.sdk.notifier.success('Gatsby Preview updated!'),
+      () => this.props.sdk.notifier.error('Gatsby Preview failed :(')
     );
   };
 
-  openPreviewTab = () => {
-    window.open(this.state.previewUrl);
+  openPreviewTab = async () => {
+    const {
+      parameters: { installation, instance },
+      entry
+    } = this.props.sdk;
+    const { previewUrl } = installation;
+    const { contentTypeSlug } = instance;
+    const { slug: contentSlug } = entry.fields;
+
+    const slug = await fetch(`${previewUrl}/___graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query:
+          'query getQualifiedSlug($slugExpr:String) { sitePage( path:{ regex:$slugExpr } ) { path } }',
+        variables: {
+          slugExpr: `/${
+            contentSlug ? contentSlug.getValue() : contentTypeSlug
+          }\/?$/`
+        }
+      })
+    })
+      .then(res => res.json())
+      .then(json => (json && json.data ? json.data.sitePath.page : ``));
+
+    window.open(`${previewUrl}/${slug}`);
   };
 
   render = () => {
     return (
       <div className="extension">
         <div className="flexcontainer">
-          <Button
-            buttonType="positive"
-            onClick={this.openPreviewTab}
-            isFullWidth
-          >
+          <Button buttonType="positive" onClick={this.openPreviewTab} isFullWidth>
             Open preview
           </Button>
           <div
             style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
-          >
-            <Paragraph style={{ marginRight: "5%" }}>Powered by:</Paragraph>
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+            <Paragraph style={{ marginRight: '5%' }}>Powered by:</Paragraph>
 
-            <img
-              src={require("./gatsby.svg")}
-              className="gatsby-logo"
-              alt="Gatsby"
-            />
+            <img src={require('./gatsby.svg')} className="gatsby-logo" alt="Gatsby" />
           </div>
         </div>
       </div>
@@ -109,5 +110,5 @@ class App extends React.Component {
 }
 
 init(sdk => {
-  ReactDOM.render(<App sdk={sdk} />, document.getElementById("root"));
+  ReactDOM.render(<App sdk={sdk} />, document.getElementById('root'));
 });
