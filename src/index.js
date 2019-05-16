@@ -80,7 +80,7 @@ class App extends React.Component {
       })
     })
       .then(res => res.json())
-      .then(json => (json && json.data ? json.data.sitePath.page : ``));
+      .then(json => (json && json.data ? json.data.sitePage.path : ``));
 
     window.open(`${previewUrl}/${slug}`);
   };
