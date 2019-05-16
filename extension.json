@@ -4,6 +4,13 @@
   "srcdoc": "./build/index.html",
   "sidebar": true,
   "parameters": {
+    "instance": [
+      {
+        "id": "contentTypeSlug",
+        "type": "Symbol",
+        "name": "URL slug for content type"
+      }
+    ],
     "installation": [
       {
         "id": "previewUrl",
