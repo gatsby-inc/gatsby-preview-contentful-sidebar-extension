@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Button, Paragraph } from "@contentful/forma-36-react-components";
+import { Button, Paragraph, FieldGroup, RadioButtonField } from "@contentful/forma-36-react-components";
 import { init } from "contentful-ui-extensions-sdk";
 import "@contentful/forma-36-react-components/dist/styles.css";
 import "./index.css";
@@ -8,6 +8,11 @@ import "./index.css";
 class App extends React.Component {
   constructor(props) {
     super(props);
+    const { isAutoUpdate } = this.props.sdk.parameters.instance;
+
+    this.state = {
+      isAutoUpdate,
+    }
   }
 
   componentDidMount = () => {
@@ -31,6 +36,9 @@ class App extends React.Component {
   onSysChanged = () => {
     if (this.debounceInterval) {
       clearInterval(this.debounceInterval);
+    }
+    if (!this.state.isAutoUpdate) {
+      return
     }
     this.debounceInterval = setInterval(this.refreshGatsbyPreview, 1000);
   };
@@ -98,6 +106,10 @@ class App extends React.Component {
     }
   };
 
+  onAutoUpdateChange = (e) => {
+    this.setState({ isAutoUpdate: e.target.value === "yes" });
+  }
+
   render = () => {
     return (
       <div className="extension">
@@ -108,6 +120,36 @@ class App extends React.Component {
             isFullWidth
           >
             Open preview
+          </Button>
+          <FieldGroup row={true}>
+            <RadioButtonField
+              labelText="Auto-update"
+              disabled={false}
+              checked={this.state.isAutoUpdate}
+              value="yes"
+              onChange={this.onAutoUpdateChange}
+              labelIsLight
+              name="autoUpdate"
+              id="checkbox1"
+            />
+            <RadioButtonField
+              labelText="Manual update"
+              disabled={false}
+              checked={!this.state.isAutoUpdate}
+              name="someOption"
+              value="no"
+              onChange={this.onAutoUpdateChange}
+              labelIsLight
+              name="autoUpdate"
+              id="checkbox2"
+            />
+          </FieldGroup>
+          <Button
+            buttonType="primary"
+            onClick={this.refreshGatsbyPreview}
+            isFullWidth
+          >
+            Update preview
           </Button>
           <div
             style={{

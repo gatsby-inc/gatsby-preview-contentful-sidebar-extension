@@ -9,6 +9,12 @@
         "id": "contentTypeSlug",
         "type": "Symbol",
         "name": "URL slug for content type"
+      },
+      {
+        "id": "isAutoUpdate",
+        "type": "Boolean",
+        "name": "Automatically update Gatsby Preview?",
+        "default": false
       }
     ],
     "installation": [
